@@ -8,3 +8,10 @@ coverage
 playwright-report
 test-results
 *.tsbuildinfo
+*.log
+*.pid
+*.out
+logs/
+**/logs/
+.env
+.env.*
