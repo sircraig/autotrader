@@ -1,4 +1,5 @@
 import type { AppEvent, SystemStatusPayload } from './events';
+import type { DeltaSeriesPoint } from '../indicators/chart-surface';
 import type { AggTrade, Candle, OrderBook, Timeframe } from './market';
 
 export interface AppBootstrapState {
@@ -6,6 +7,7 @@ export interface AppBootstrapState {
   sequence: number;
   lastEventAt: string | null;
   bootstrap: Record<Timeframe, Candle[]>;
+  deltaHistory: DeltaSeriesPoint[];
   latestCandles: Record<Timeframe, Candle | null>;
   latestOrderBook: OrderBook | null;
   latestTrade: AggTrade | null;

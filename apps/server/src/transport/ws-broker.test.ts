@@ -71,6 +71,37 @@ test('broker sends bootstrap state immediately on open', () => {
       }
     })
   );
+  state.apply(
+    createEvent({
+      sequence: 2,
+      type: 'analytics.delta',
+      payload: {
+        timeframe: '5m',
+        candleTimestamp: 1_710_000_000_000,
+        stats: {
+          delta: 42,
+          deltaPct: 55,
+          durationDelta: 18,
+          durationDeltaPct: 60,
+          pnlTotal1h: 120
+        },
+        runningTotals: {
+          buyTotal: 80,
+          buyCount: 2,
+          buyDuration: 20,
+          sellTotal: 38,
+          sellCount: 1,
+          sellDuration: 8,
+          combinedTotal: 118,
+          delta: 42,
+          deltaPct: 55,
+          totalDuration: 28,
+          durationDelta: 12,
+          durationDeltaPct: 43
+        }
+      }
+    })
+  );
 
   const broker = new AppWsBroker(state);
   const socket = createMockSocket();
@@ -83,6 +114,12 @@ test('broker sends bootstrap state immediately on open', () => {
     type: 'app.bootstrap',
     payload: {
       symbol: 'BTCUSDT',
+      deltaHistory: [
+        {
+          timestamp: 1_710_000_000_000,
+          value: 42
+        }
+      ],
       bootstrap: {
         '5m': [
           {

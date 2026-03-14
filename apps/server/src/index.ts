@@ -118,6 +118,7 @@ const server = Bun.serve({
       return jsonResponse(request, {
         symbol,
         bootstrap: snapshot.bootstrap,
+        deltaHistory: snapshot.deltaHistory,
         latestCandles: snapshot.latestCandles
       });
     }

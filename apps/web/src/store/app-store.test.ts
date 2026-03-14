@@ -47,6 +47,12 @@ test('applyServerMessage hydrates bootstrap state and preserves transport metada
         ],
         '5m': []
       },
+      deltaHistory: [
+        {
+          timestamp: 1_710_000_000_000,
+          value: 18
+        }
+      ],
       latestCandles: {
         '1m': {
           timestamp: 1,
@@ -70,6 +76,12 @@ test('applyServerMessage hydrates bootstrap state and preserves transport metada
 
   expect(nextState.sequence).toBe(12);
   expect(nextState.bootstrap['1m']).toHaveLength(1);
+  expect(nextState.deltaHistory).toEqual([
+    {
+      timestamp: 1_710_000_000_000,
+      value: 18
+    }
+  ]);
   expect(nextState.latestCandles['1m']?.close).toBe(11);
   expect(nextState.systemStatus).toEqual({
     status: 'healthy',
@@ -87,6 +99,8 @@ test('applyServerMessage resets derived dashboard slices on bootstrap rehydratio
       sequence: 2,
       type: 'analytics.delta',
       payload: {
+        timeframe: '1m',
+        candleTimestamp: Date.parse('2026-03-14T10:00:00.000Z'),
         stats: {
           delta: 25,
           deltaPct: 70,
@@ -174,6 +188,12 @@ test('applyServerMessage resets derived dashboard slices on bootstrap rehydratio
         '1m': [],
         '5m': []
       },
+      deltaHistory: [
+        {
+          timestamp: 1_710_000_300_000,
+          value: 24
+        }
+      ],
       latestCandles: {
         '1m': null,
         '5m': null
@@ -187,7 +207,12 @@ test('applyServerMessage resets derived dashboard slices on bootstrap rehydratio
   } satisfies AppServerMessage);
 
   expect(nextState.deltaAnalytics).toBeNull();
-  expect(nextState.deltaHistory).toEqual([]);
+  expect(nextState.deltaHistory).toEqual([
+    {
+      timestamp: 1_710_000_300_000,
+      value: 24
+    }
+  ]);
   expect(nextState.cvdAnalytics).toBeNull();
   expect(nextState.indicatorAnalytics).toBeNull();
   expect(nextState.recentOrderBookSignals).toEqual([]);
@@ -230,6 +255,8 @@ test('applyAppEvent updates candles, analytics, and signal history slices', () =
       sequence: 3,
       type: 'analytics.delta',
       payload: {
+        timeframe: '5m',
+        candleTimestamp: 5,
         stats: {
           delta: 25,
           deltaPct: 70,
@@ -300,7 +327,7 @@ test('applyAppEvent updates candles, analytics, and signal history slices', () =
   expect(state.deltaAnalytics?.stats.delta).toBe(25);
   expect(state.deltaHistory).toEqual([
     {
-      timestamp: Date.parse('2026-03-14T10:00:00.000Z'),
+      timestamp: 5,
       value: 25
     }
   ]);
@@ -310,4 +337,40 @@ test('applyAppEvent updates candles, analytics, and signal history slices', () =
     action: 'open',
     points: 5
   });
+});
+
+test('applyAppEvent does not append delta chart history for non-5m delta analytics', () => {
+  const state = applyAppEvent(
+    createInitialDashboardState('BTCUSDT'),
+    createEvent({
+      sequence: 2,
+      type: 'analytics.delta',
+      payload: {
+        stats: {
+          delta: 12,
+          deltaPct: 55,
+          durationDelta: 8,
+          durationDeltaPct: 51,
+          pnlTotal1h: 900
+        },
+        runningTotals: {
+          buyTotal: 10,
+          buyCount: 1,
+          buyDuration: 10,
+          sellTotal: 2,
+          sellCount: 1,
+          sellDuration: 5,
+          combinedTotal: 12,
+          delta: 8,
+          deltaPct: 66,
+          totalDuration: 15,
+          durationDelta: 5,
+          durationDeltaPct: 33
+        }
+      }
+    })
+  );
+
+  expect(state.deltaAnalytics?.stats.delta).toBe(12);
+  expect(state.deltaHistory).toEqual([]);
 });

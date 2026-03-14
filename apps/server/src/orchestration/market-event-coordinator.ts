@@ -81,6 +81,10 @@ function withOutsideBb(
   outsideBb: IndicatorAnalyticsPayload['snapshot']['deltaBb']
 ): DeltaAnalyticsPayload {
   return {
+    ...(payload.timeframe === undefined ? {} : { timeframe: payload.timeframe }),
+    ...(payload.candleTimestamp === undefined
+      ? {}
+      : { candleTimestamp: payload.candleTimestamp }),
     stats: {
       ...payload.stats,
       ...(outsideBb === null ? {} : { outsideBb })
@@ -90,9 +94,17 @@ function withOutsideBb(
 }
 
 function toDeltaAnalyticsPayload(
-  snapshot: ReturnType<OrderBookDeltaEngine['getSnapshot']>
+  snapshot: ReturnType<OrderBookDeltaEngine['getSnapshot']>,
+  options?: {
+    timeframe?: Timeframe;
+    candleTimestamp?: number;
+  }
 ): DeltaAnalyticsPayload {
   return {
+    ...(options?.timeframe === undefined ? {} : { timeframe: options.timeframe }),
+    ...(options?.candleTimestamp === undefined
+      ? {}
+      : { candleTimestamp: options.candleTimestamp }),
     stats: snapshot.currentDeltaStats,
     runningTotals: snapshot.runningTotals
   };
@@ -256,7 +268,10 @@ export class MarketEventCoordinator {
 
     const orderBookSnapshot = this.orderBookDeltaEngine.getSnapshot(this.now());
     const tradeFlowSnapshot = this.tradeFlowEngine.getSnapshot(this.now());
-    const baseDeltaPayload = toDeltaAnalyticsPayload(orderBookSnapshot);
+    const baseDeltaPayload = toDeltaAnalyticsPayload(orderBookSnapshot, {
+      timeframe: event.payload.timeframe,
+      candleTimestamp: event.payload.candle.timestamp
+    });
     const cvdPayload = toCvdAnalyticsPayload(tradeFlowSnapshot);
 
     if (event.payload.timeframe === '1m') {

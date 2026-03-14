@@ -56,6 +56,8 @@ export const appEventSchema = z.discriminatedUnion('type', [
   eventEnvelopeBaseSchema.extend({
     type: z.literal('analytics.delta'),
     payload: z.object({
+      timeframe: timeframeSchema.optional(),
+      candleTimestamp: z.number().int().nonnegative().optional(),
       stats: deltaStatsSchema,
       runningTotals: runningTotalsSchema
     })
@@ -103,4 +105,3 @@ export const appEventSchema = z.discriminatedUnion('type', [
 ]);
 
 export type AppEventSchema = z.infer<typeof appEventSchema>;
-

@@ -90,6 +90,20 @@ const bootstrapMessage: AppBootstrapMessage = {
       '1m': bootstrap1m,
       '5m': bootstrap5m
     },
+    deltaHistory: [
+      {
+        timestamp: bootstrap5m[bootstrap5m.length - 3]!.timestamp,
+        value: 350
+      },
+      {
+        timestamp: bootstrap5m[bootstrap5m.length - 2]!.timestamp,
+        value: 410
+      },
+      {
+        timestamp: bootstrap5m[bootstrap5m.length - 1]!.timestamp,
+        value: 480
+      }
+    ],
     latestCandles: {
       '1m': getLast(bootstrap1m),
       '5m': getLast(bootstrap5m)
@@ -127,6 +141,8 @@ const deltaEvent = createEventMessage({
   source: 'server',
   symbol: 'BTCUSDT',
   payload: {
+    timeframe: '5m',
+    candleTimestamp: getLast(bootstrap5m).timestamp,
     stats: {
       delta: 480,
       deltaPct: 72,
@@ -290,6 +306,12 @@ const reconnectBootstrap: AppBootstrapMessage = {
     ...bootstrapMessage.payload,
     sequence: 84,
     lastEventAt: '2026-03-14T10:50:00.000Z',
+    deltaHistory: [
+      {
+        timestamp: getLast(bootstrap5m).timestamp,
+        value: 480
+      }
+    ],
     latestTrade: {
       tradeId: 1_004,
       price: 71_000,
@@ -506,31 +528,31 @@ test('hydrates the dashboard from bootstrap and analytics events', async ({ page
   await expect(chartWidget.getByText('price_bb.above')).toBeVisible();
   await expect(chartWidget.getByText('div.bullish')).toBeVisible();
   await expect(page.getByText('awaiting bootstrap candles')).toHaveCount(0);
-  await expect(page.getByText('AWAITING 5M CANDLES')).toHaveCount(0);
+  await expect(page.getByRole('heading', { name: '1M Candle Tape' })).toHaveCount(0);
 });
 
-test('renders historical preload in both candle tapes and the chart surface', async ({ page }) => {
+test('renders historical preload in the 5m candle tape and remaining chart surface panes', async ({
+  page
+}) => {
   await page.goto('/');
   await waitForActiveSocket(page);
   await seedDashboard(page);
 
-  const tape1m = page.locator('section').filter({
-    has: page.getByRole('heading', { name: '1M Candle Tape' })
-  });
   const tape5m = page.locator('section').filter({
     has: page.getByRole('heading', { name: '5M Candle Tape' })
   });
 
-  await expect(tape1m.getByText('latest $70,121.00')).toBeVisible();
   await expect(tape5m.getByText('latest $70,156.00')).toBeVisible();
-  await expect(tape1m.getByText('$70,121.00', { exact: true })).toBeVisible();
   await expect(tape5m.getByText('$70,156.00', { exact: true })).toBeVisible();
   await expect(tape5m.getByText('delta +480').first()).toBeVisible();
   await expect(tape5m.getByText('cvd 68%').first()).toBeVisible();
   await expect(tape5m.getByText('ema above').first()).toBeVisible();
-  await expect(page.getByRole('img', { name: '5 minute price pane' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '1M Candle Tape' })).toHaveCount(0);
+  await expect(page.getByRole('img', { name: '5 minute price pane' })).toHaveCount(0);
   await expect(page.getByRole('img', { name: 'RSI pane' })).toBeVisible();
   await expect(page.getByRole('img', { name: 'ATR / ATR SMA pane' })).toBeVisible();
+  await expect(page.getByRole('img', { name: 'Delta pane' })).toBeVisible();
+  await expect(page.getByRole('img', { name: 'DELTA FEED WAITING' })).toHaveCount(0);
 });
 
 test('renders recent point-signal open and close events with gate context', async ({ page }) => {

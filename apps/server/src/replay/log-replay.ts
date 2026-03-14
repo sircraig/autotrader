@@ -65,6 +65,8 @@ function createSequenceGenerator(startAt = 0): () => number {
 
 function toDeltaPayload(event: Extract<PersistedLogEvent, { event_type: 'CANDLE_CLOSE_1M' | 'CANDLE_CLOSE_5M' }>): DeltaAnalyticsPayload {
   return {
+    timeframe: event.timeframe,
+    candleTimestamp: event.candle.timestamp,
     stats: {
       delta: event.delta_stats.delta,
       deltaPct: event.delta_stats.delta_pct,
