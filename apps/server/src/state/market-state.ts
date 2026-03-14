@@ -1,4 +1,5 @@
 import { tradingConfig } from '@autotrader/core/config/trading';
+import type { DeltaSeriesPoint } from '@autotrader/core';
 import type {
   AggTrade,
   AppBootstrapState,
@@ -16,6 +17,10 @@ const MAX_CANDLES_PER_TIMEFRAME = Math.max(
 );
 
 export type MarketStateSnapshot = AppBootstrapState;
+
+function cloneDeltaPoint(point: DeltaSeriesPoint): DeltaSeriesPoint {
+  return { ...point };
+}
 
 function cloneSystemStatus(payload: SystemStatusPayload): SystemStatusPayload {
   return {
@@ -53,6 +58,15 @@ function upsertCandle(candles: Candle[], nextCandle: Candle): Candle[] {
   return [...candles, cloneCandle(nextCandle)].slice(-MAX_CANDLES_PER_TIMEFRAME);
 }
 
+function pushDeltaPoint(
+  points: DeltaSeriesPoint[],
+  nextPoint: DeltaSeriesPoint
+): DeltaSeriesPoint[] {
+  return [...points, cloneDeltaPoint(nextPoint)]
+    .sort((left, right) => left.timestamp - right.timestamp)
+    .slice(-tradingConfig.indicators.maxCandles);
+}
+
 export class MarketState {
   private readonly symbol: string;
   private sequence = 0;
@@ -65,6 +79,7 @@ export class MarketState {
     '1m': null,
     '5m': null
   };
+  private deltaHistory: DeltaSeriesPoint[] = [];
   private latestOrderBook: OrderBook | null = null;
   private latestTrade: AggTrade | null = null;
   private systemStatus: SystemStatusPayload = {
@@ -90,6 +105,15 @@ export class MarketState {
         const { timeframe, candle } = event.payload;
         this.bootstrap[timeframe] = upsertCandle(this.bootstrap[timeframe], candle);
         this.latestCandles[timeframe] = cloneCandle(candle);
+        break;
+      }
+      case 'analytics.delta': {
+        if (event.payload.timeframe === '5m' && event.payload.candleTimestamp !== undefined) {
+          this.deltaHistory = pushDeltaPoint(this.deltaHistory, {
+            timestamp: event.payload.candleTimestamp,
+            value: event.payload.stats.delta
+          });
+        }
         break;
       }
       case 'market.order_book': {
@@ -118,6 +142,7 @@ export class MarketState {
         '1m': this.bootstrap['1m'].map(cloneCandle),
         '5m': this.bootstrap['5m'].map(cloneCandle)
       },
+      deltaHistory: this.deltaHistory.map(cloneDeltaPoint),
       latestCandles: {
         '1m': this.latestCandles['1m'] ? cloneCandle(this.latestCandles['1m']) : null,
         '5m': this.latestCandles['5m'] ? cloneCandle(this.latestCandles['5m']) : null

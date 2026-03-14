@@ -154,6 +154,13 @@ test('replay reads known log files, sorts by timestamp, and expands candle logs 
         }
       }
     });
+    expect(candleReplayEvents[1]).toMatchObject({
+      type: 'analytics.delta',
+      payload: {
+        timeframe: '5m',
+        candleTimestamp: candle.timestamp
+      }
+    });
 
     const replayEvents = persistedLogRecordsToReplayEvents(records, {
       symbol: 'BTCUSDT'

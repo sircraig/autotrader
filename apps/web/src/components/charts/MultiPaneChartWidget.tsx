@@ -8,11 +8,10 @@ import {
 import { useShallow } from 'zustand/react/shallow';
 
 import { WidgetBadge, WidgetFrame } from '../widgets';
-import { formatPrice, formatSigned } from '../widgets/format';
+import { formatSigned } from '../widgets/format';
 import { type DashboardStoreState, useAppStore } from '../../store/app-store';
 
 const CHART_WIDTH = 960;
-const PRICE_HEIGHT = 280;
 const PANE_HEIGHT = 144;
 
 interface ValueRange {
@@ -215,126 +214,6 @@ function EmptyState(props: {
   );
 }
 
-function PricePane(props: {
-  candles: DashboardStoreState['bootstrap']['5m'];
-  emaSeries: ChartSeriesPoint[];
-  bandSeries: ChartBandPoint[];
-}) {
-  if (props.candles.length === 0) {
-    return <EmptyState height={PRICE_HEIGHT} message="AWAITING 5M CANDLES" />;
-  }
-
-  const priceRange = createRange([
-    ...props.candles.flatMap((candle) => [candle.low, candle.high]),
-    ...props.bandSeries.flatMap((point) => [point.upper, point.middle, point.lower]),
-    ...props.emaSeries.map((point) => point.value)
-  ], 20);
-  const candleWidth = Math.max(5, CHART_WIDTH / Math.max(props.candles.length * 1.8, 24));
-  const emaPolyline = buildPolyline(props.emaSeries, priceRange, CHART_WIDTH, PRICE_HEIGHT);
-  const upperBand = buildBandPolyline(
-    props.bandSeries,
-    'upper',
-    priceRange,
-    CHART_WIDTH,
-    PRICE_HEIGHT
-  );
-  const middleBand = buildBandPolyline(
-    props.bandSeries,
-    'middle',
-    priceRange,
-    CHART_WIDTH,
-    PRICE_HEIGHT
-  );
-  const lowerBand = buildBandPolyline(
-    props.bandSeries,
-    'lower',
-    priceRange,
-    CHART_WIDTH,
-    PRICE_HEIGHT
-  );
-
-  return (
-    <svg
-      viewBox={`0 0 ${CHART_WIDTH} ${PRICE_HEIGHT}`}
-      className="block h-auto w-full"
-      role="img"
-      aria-label="5 minute price pane"
-    >
-      <rect width={CHART_WIDTH} height={PRICE_HEIGHT} fill="rgba(0,0,0,0.12)" />
-      {renderGrid(PRICE_HEIGHT)}
-      {upperBand ? (
-        <polyline
-          fill="none"
-          points={upperBand}
-          stroke="rgba(255,229,161,0.72)"
-          strokeDasharray="6 6"
-          strokeWidth="2"
-        />
-      ) : null}
-      {middleBand ? (
-        <polyline
-          fill="none"
-          points={middleBand}
-          stroke="rgba(127,176,141,0.55)"
-          strokeDasharray="4 8"
-          strokeWidth="1.5"
-        />
-      ) : null}
-      {lowerBand ? (
-        <polyline
-          fill="none"
-          points={lowerBand}
-          stroke="rgba(255,229,161,0.72)"
-          strokeDasharray="6 6"
-          strokeWidth="2"
-        />
-      ) : null}
-      {emaPolyline ? (
-        <polyline
-          fill="none"
-          points={emaPolyline}
-          stroke="rgba(91,255,140,0.9)"
-          strokeWidth="2.25"
-        />
-      ) : null}
-      {props.candles.map((candle, index) => {
-        const x = xForIndex(index, props.candles.length, CHART_WIDTH);
-        const openY = yForValue(candle.open, priceRange, PRICE_HEIGHT);
-        const closeY = yForValue(candle.close, priceRange, PRICE_HEIGHT);
-        const highY = yForValue(candle.high, priceRange, PRICE_HEIGHT);
-        const lowY = yForValue(candle.low, priceRange, PRICE_HEIGHT);
-        const top = Math.min(openY, closeY);
-        const bodyHeight = Math.max(Math.abs(openY - closeY), 2);
-        const tone =
-          candle.close >= candle.open
-            ? 'rgba(91,255,140,0.92)'
-            : 'rgba(255,185,170,0.92)';
-
-        return (
-          <g key={candle.timestamp}>
-            <line
-              x1={x}
-              x2={x}
-              y1={highY}
-              y2={lowY}
-              stroke={tone}
-              strokeWidth="1.4"
-            />
-            <rect
-              x={x - candleWidth / 2}
-              y={top}
-              width={candleWidth}
-              height={bodyHeight}
-              fill={tone}
-              opacity="0.92"
-            />
-          </g>
-        );
-      })}
-    </svg>
-  );
-}
-
 function LinePane(props: {
   title: string;
   meta: string;
@@ -467,14 +346,13 @@ export function MultiPaneChartWidget() {
     deltaPoints: deltaHistory,
     indicatorSnapshot
   });
-  const latestClose = surface.candles.at(-1)?.close ?? null;
   const latestRsi = surface.rsiSeries.at(-1)?.value ?? null;
   const latestDelta = surface.deltaSeries.at(-1)?.value ?? null;
 
   return (
     <WidgetFrame
       title="Chart Surface"
-      eyebrow="task_14 // price, rsi, atr, delta"
+      eyebrow="task_14 // rsi, atr, delta"
       aside={
         <div className="flex flex-wrap justify-end gap-2 text-[0.68rem] uppercase tracking-[0.16em]">
           <WidgetBadge tone={getSummaryTone(surface.summary.emaPosition)}>
@@ -493,17 +371,6 @@ export function MultiPaneChartWidget() {
       }
     >
       <div className="grid gap-3">
-        <PaneShell
-          title="Price"
-          meta={`${formatPrice(latestClose)} • ${surface.candles.length} candles`}
-        >
-          <PricePane
-            candles={surface.candles}
-            emaSeries={surface.emaSeries}
-            bandSeries={surface.priceBandSeries}
-          />
-        </PaneShell>
-
         <div className="grid gap-3 xl:grid-cols-3">
           <LinePane
             title="RSI"

@@ -76,6 +76,12 @@ test('coordinator emits delta analytics and trade signals after order-book updat
     'signal.order_book_delta'
   ]);
   expect(batch.events.map((event) => event.sequence)).toEqual([1, 2, 3]);
+  expect(batch.events[1]?.payload).toMatchObject({
+    stats: {
+      delta: expect.any(Number)
+    }
+  });
+  expect((batch.events[1]?.payload as { timeframe?: string }).timeframe).toBeUndefined();
   expect(batch.logEvents.map((event) => event.event_type)).toEqual(['TRADE_OPEN']);
 });
 
@@ -145,6 +151,10 @@ test('coordinator emits delta and cvd snapshots for closed 1m candles and writes
     'analytics.delta',
     'analytics.cvd'
   ]);
+  expect(batch.events[1]?.payload).toMatchObject({
+    timeframe: '1m',
+    candleTimestamp: 1_710_000_060_000
+  });
   expect(batch.logEvents.map((event) => event.event_type)).toEqual(['CANDLE_CLOSE_1M']);
 });
 
@@ -265,6 +275,10 @@ test('coordinator sequences 5m candle analytics before point-signal events and l
     'analytics.indicator',
     'signal.point'
   ]);
+  expect(batch.events[1]?.payload).toMatchObject({
+    timeframe: '5m',
+    candleTimestamp: 1_710_000_300_000
+  });
   expect(batch.logEvents.map((event) => event.event_type)).toEqual([
     'CANDLE_CLOSE_5M',
     'POINT_TRADE_OPEN'

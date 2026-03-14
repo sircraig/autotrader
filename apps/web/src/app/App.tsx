@@ -228,7 +228,6 @@ export function App() {
 
       <section className="grid gap-4 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.98fr)_minmax(0,0.94fr)]">
         <div className="grid gap-4">
-          <CandleCloseWidget timeframe="1m" />
           <CandleCloseWidget timeframe="5m" />
         </div>
 

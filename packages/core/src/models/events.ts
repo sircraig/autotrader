@@ -46,6 +46,8 @@ export interface AggTradeEventPayload {
 }
 
 export interface DeltaAnalyticsPayload {
+  timeframe?: Timeframe;
+  candleTimestamp?: number;
   stats: DeltaStats;
   runningTotals: RunningTotals;
 }
@@ -91,4 +93,3 @@ export type AppEvent =
   | AppEventEnvelope<'signal.order_book_delta', OrderBookSignalPayload>
   | AppEventEnvelope<'signal.point', PointSignalPayload>
   | AppEventEnvelope<'system.status', SystemStatusPayload>;
-

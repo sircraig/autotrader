@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 
 import { tradingConfig } from '@autotrader/core/config/trading';
-import type { DeltaSeriesPoint } from '@autotrader/core';
 import type {
   AggTrade,
   AppBootstrapState,
@@ -37,7 +36,6 @@ export interface DashboardConnectionState {
 
 export interface DashboardStateData extends AppBootstrapState {
   deltaAnalytics: DeltaAnalyticsPayload | null;
-  deltaHistory: DeltaSeriesPoint[];
   cvdAnalytics: CvdAnalyticsPayload | null;
   indicatorAnalytics: IndicatorAnalyticsPayload | null;
   recentOrderBookSignals: OrderBookSignalPayload[];
@@ -85,6 +83,7 @@ function cloneBootstrapState(state: AppBootstrapState): AppBootstrapState {
       '1m': state.bootstrap['1m'].map(cloneCandle),
       '5m': state.bootstrap['5m'].map(cloneCandle)
     },
+    deltaHistory: state.deltaHistory.map((point) => ({ ...point })),
     latestCandles: {
       '1m': state.latestCandles['1m'] ? cloneCandle(state.latestCandles['1m']) : null,
       '5m': state.latestCandles['5m'] ? cloneCandle(state.latestCandles['5m']) : null
@@ -115,19 +114,6 @@ function upsertCandle(candles: Candle[], nextCandle: Candle): Candle[] {
   return [...candles, cloneCandle(nextCandle)].slice(-MAX_CANDLES_PER_TIMEFRAME);
 }
 
-function resolveSeriesTimestamp(
-  emittedAt: string,
-  previousTimestamp: number | null
-): number {
-  const parsed = Date.parse(emittedAt);
-
-  if (Number.isFinite(parsed)) {
-    return parsed;
-  }
-
-  return previousTimestamp === null ? 0 : previousTimestamp + 1;
-}
-
 export function createInitialDashboardState(
   symbol: string = tradingConfig.market.defaultSymbol
 ): DashboardStateData {
@@ -139,6 +125,7 @@ export function createInitialDashboardState(
       '1m': [],
       '5m': []
     },
+    deltaHistory: [],
     latestCandles: {
       '1m': null,
       '5m': null
@@ -149,7 +136,6 @@ export function createInitialDashboardState(
       status: 'starting'
     },
     deltaAnalytics: null,
-    deltaHistory: [],
     cvdAnalytics: null,
     indicatorAnalytics: null,
     recentOrderBookSignals: [],
@@ -204,17 +190,16 @@ export function applyAppEvent(state: DashboardStateData, event: AppEvent): Dashb
       return nextState;
     case 'analytics.delta':
       nextState.deltaAnalytics = event.payload;
-      nextState.deltaHistory = pushSeriesPoint(
-        state.deltaHistory,
-        {
-          timestamp: resolveSeriesTimestamp(
-            event.emittedAt,
-            state.deltaHistory.at(-1)?.timestamp ?? null
-          ),
-          value: event.payload.stats.delta
-        },
-        tradingConfig.indicators.maxCandles
-      );
+      if (event.payload.timeframe === '5m' && event.payload.candleTimestamp !== undefined) {
+        nextState.deltaHistory = pushSeriesPoint(
+          state.deltaHistory,
+          {
+            timestamp: event.payload.candleTimestamp,
+            value: event.payload.stats.delta
+          },
+          tradingConfig.indicators.maxCandles
+        );
+      }
       return nextState;
     case 'analytics.cvd':
       nextState.cvdAnalytics = event.payload;
