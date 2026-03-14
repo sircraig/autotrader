@@ -1,9 +1,12 @@
 {
-  "files": [],
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["bun"]
+  },
+  "include": ["playwright.config.ts"],
   "references": [
     { "path": "./packages/core" },
     { "path": "./apps/server" },
     { "path": "./apps/web" }
   ]
 }
-
