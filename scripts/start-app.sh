@@ -6,7 +6,7 @@ ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SERVER_PORT="${SERVER_PORT:-3001}"
 WEB_PORT="${WEB_PORT:-3000}"
 WEB_HOST="${WEB_HOST:-0.0.0.0}"
-FRONTEND_DEBUG="${FRONTEND_DEBUG:-true}"
+FRONTEND_DEBUG="${FRONTEND_DEBUG:-false}"
 SERVER_PID=""
 WEB_PID=""
 
@@ -48,7 +48,7 @@ else
   echo "    frontend debug: disabled"
 fi
 
-bun run --cwd apps/web dev -- "${web_args[@]}" &
+VITE_SERVER_PORT="$SERVER_PORT" bun run --cwd apps/web dev -- "${web_args[@]}" &
 WEB_PID=$!
 
 echo "Application started."

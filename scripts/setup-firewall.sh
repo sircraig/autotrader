@@ -5,7 +5,7 @@ set -euo pipefail
 # Defaults are tuned for this host/network, but HOST_IP can be overridden.
 HOST_IP="${1:-192.168.20.20}"
 LAN_CIDR="${LAN_CIDR:-192.168.1.0/24}"
-DOCKER_CIDR="${DOCKER_CIDR:-172.18.0.0/16}"
+DOCKER_CIDR="${DOCKER_CIDR:-172.17.0.0/16}"
 WEB_PORT="${WEB_PORT:-3000}"
 SERVER_PORT="${SERVER_PORT:-3001}"
 

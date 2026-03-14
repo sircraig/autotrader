@@ -19,7 +19,9 @@
     "typecheck:web": "bun run --cwd apps/web typecheck",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "test": "bun test packages/core/src apps/server/src apps/web/src"
+    "test": "./scripts/test.sh",
+    "test:e2e": "./scripts/test.sh --e2e",
+    "test:all": "./scripts/test.sh --all"
   },
   "dependencies": {
     "clsx": "^2.1.1",

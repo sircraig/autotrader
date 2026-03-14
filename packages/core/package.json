@@ -5,7 +5,9 @@
   "exports": {
     ".": "./src/index.ts",
     "./config/*": "./src/config/*",
+    "./indicators/*": "./src/indicators/*",
     "./models/*": "./src/models/*",
+    "./signals/*": "./src/signals/*",
     "./validation/*": "./src/validation/*"
   },
   "scripts": {
@@ -15,4 +17,3 @@
     "zod": "^3.24.2"
   }
 }
-
