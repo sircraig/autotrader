@@ -1,8 +1,8 @@
 import { mkdir, appendFile } from 'node:fs/promises';
 import path from 'node:path';
 
-import type { PersistedLogEvent } from '@btc-tui/core/models';
-import { persistedLogEventSchema } from '@btc-tui/core/validation/logs';
+import type { PersistedLogEvent } from '@autotrader/core/models';
+import { persistedLogEventSchema } from '@autotrader/core/validation/logs';
 
 export interface PersistedLogWriterOptions {
   logDir?: string;

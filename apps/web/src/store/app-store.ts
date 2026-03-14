@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-import { tradingConfig } from '@btc-tui/core/config/trading';
-import type { DeltaSeriesPoint } from '@btc-tui/core';
+import { tradingConfig } from '@autotrader/core/config/trading';
+import type { DeltaSeriesPoint } from '@autotrader/core';
 import type {
   AggTrade,
   AppBootstrapState,
@@ -16,7 +16,7 @@ import type {
   OrderBookSignalPayload,
   PointSignalPayload,
   SystemStatusPayload,
-} from '@btc-tui/core/models';
+} from '@autotrader/core/models';
 
 const MAX_SIGNAL_HISTORY = 20;
 const MAX_CANDLES_PER_TIMEFRAME = Math.max(

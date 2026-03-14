@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import { tradingConfig } from '@btc-tui/core/config/trading';
+import { tradingConfig } from '@autotrader/core/config/trading';
 
 import { MultiPaneChartWidget } from '../components/charts';
 import {

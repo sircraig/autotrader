@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 
-import type { AppEvent } from '@btc-tui/core/models';
+import type { AppEvent } from '@autotrader/core/models';
 
 import { MarketState } from '../state/market-state';
 import { AppWsBroker, type AppWebSocketData } from './ws-broker';

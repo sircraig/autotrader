@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 
-import type { AppEvent, Candle, OrderBook } from '@btc-tui/core/models';
+import type { AppEvent, Candle, OrderBook } from '@autotrader/core/models';
 
 import { MarketEventCoordinator } from './market-event-coordinator';
 

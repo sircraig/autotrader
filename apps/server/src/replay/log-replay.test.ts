@@ -3,7 +3,7 @@ import { mkdtemp, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import type { Candle, DeltaStats, RunningTotals } from '@btc-tui/core/models';
+import type { Candle, DeltaStats, RunningTotals } from '@autotrader/core/models';
 
 import { createCandleCloseLogEvent, createTradeSignalLogEvent } from '../logging/persisted-log-mappers';
 import { PersistedLogWriter } from '../logging/persisted-log-writer';
@@ -49,7 +49,7 @@ const runningTotals: RunningTotals = {
 };
 
 test('replay reads known log files, sorts by timestamp, and expands candle logs into replay app events', async () => {
-  const logDir = await mkdtemp(path.join(tmpdir(), 'btc-tui2-replay-'));
+  const logDir = await mkdtemp(path.join(tmpdir(), 'autotrader-replay-'));
 
   try {
     const writer = new PersistedLogWriter({ logDir });

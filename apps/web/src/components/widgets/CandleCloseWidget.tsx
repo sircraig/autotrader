@@ -1,7 +1,7 @@
 import { useDeferredValue } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import type { BandPosition, Candle, DivergenceType, EmaPosition } from '@btc-tui/core/models';
+import type { BandPosition, Candle, DivergenceType, EmaPosition } from '@autotrader/core/models';
 
 import { useAppStore, type DashboardStoreState } from '../../store/app-store';
 import { formatClock, formatPrice, formatQuantity, formatSigned, getTone } from './format';

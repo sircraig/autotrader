@@ -5,7 +5,7 @@ import type {
   AppEventMessage,
   AppPongMessage,
   AppServerMessage
-} from '@btc-tui/core/models';
+} from '@autotrader/core/models';
 
 import type { MarketState } from '../state/market-state';
 

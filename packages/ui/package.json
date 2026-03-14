@@ -1,9 +1,8 @@
 {
-  "name": "@btc-tui/ui",
+  "name": "@autotrader/ui",
   "private": true,
   "type": "module",
   "exports": {
     "./styles.css": "./src/styles.css"
   }
 }
-

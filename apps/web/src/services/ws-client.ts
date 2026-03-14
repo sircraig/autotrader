@@ -1,4 +1,4 @@
-import type { AppServerMessage } from '@btc-tui/core/models';
+import type { AppServerMessage } from '@autotrader/core/models';
 
 import {
   createPingMessage,

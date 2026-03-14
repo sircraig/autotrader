@@ -13,15 +13,15 @@ export default defineConfig({
         replacement: fileURLToPath(new URL('./src', import.meta.url))
       },
       {
-        find: /^@btc-tui\/core\/(.*)$/,
+        find: /^@autotrader\/core\/(.*)$/,
         replacement: fileURLToPath(new URL('../../packages/core/src/$1', import.meta.url))
       },
       {
-        find: '@btc-tui/core',
+        find: '@autotrader/core',
         replacement: fileURLToPath(new URL('../../packages/core/src/index.ts', import.meta.url))
       },
       {
-        find: /^@btc-tui\/ui\/(.*)$/,
+        find: /^@autotrader\/ui\/(.*)$/,
         replacement: fileURLToPath(new URL('../../packages/ui/src/$1', import.meta.url))
       }
     ]

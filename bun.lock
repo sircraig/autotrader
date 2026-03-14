@@ -3,7 +3,7 @@
   "configVersion": 1,
   "workspaces": {
     "": {
-      "name": "btc-tui2",
+      "name": "autotrader",
       "dependencies": {
         "clsx": "^2.1.1",
         "date-fns": "^4.1.0",
@@ -33,44 +33,44 @@
       },
     },
     "apps/server": {
-      "name": "@btc-tui/server",
+      "name": "@autotrader/server",
       "dependencies": {
-        "@btc-tui/core": "workspace:*",
+        "@autotrader/core": "workspace:*",
       },
     },
     "apps/web": {
-      "name": "@btc-tui/web",
+      "name": "@autotrader/web",
       "dependencies": {
-        "@btc-tui/core": "workspace:*",
-        "@btc-tui/ui": "workspace:*",
+        "@autotrader/core": "workspace:*",
+        "@autotrader/ui": "workspace:*",
       },
     },
     "packages/core": {
-      "name": "@btc-tui/core",
+      "name": "@autotrader/core",
       "dependencies": {
         "zod": "^3.24.2",
       },
     },
     "packages/ui": {
-      "name": "@btc-tui/ui",
+      "name": "@autotrader/ui",
     },
   },
   "packages": {
     "@adobe/css-tools": ["@adobe/css-tools@4.4.4", "", {}, "sha512-Elp+iwUx5rN5+Y8xLt5/GRoG20WGoDCQ/1Fb+1LiGtvwbDavuSk0jhD/eZdckHAuzcDzccnkv+rEjyWfRx18gg=="],
+
+    "@autotrader/core": ["@autotrader/core@workspace:packages/core"],
+
+    "@autotrader/server": ["@autotrader/server@workspace:apps/server"],
+
+    "@autotrader/ui": ["@autotrader/ui@workspace:packages/ui"],
+
+    "@autotrader/web": ["@autotrader/web@workspace:apps/web"],
 
     "@babel/code-frame": ["@babel/code-frame@7.29.0", "", { "dependencies": { "@babel/helper-validator-identifier": "^7.28.5", "js-tokens": "^4.0.0", "picocolors": "^1.1.1" } }, "sha512-9NhCeYjq9+3uxgdtp20LSiJXJvN0FeCtNGpJxuMFZ1Kv3cWUNb6DOhJwUvcVCzKGR66cw4njwM6hrJLqgOwbcw=="],
 
     "@babel/helper-validator-identifier": ["@babel/helper-validator-identifier@7.28.5", "", {}, "sha512-qSs4ifwzKJSV39ucNjsvc6WVHs6b7S03sOh2OcHF9UHfVPqWWALUsNUVzhSBiItjRZoLHx7nIarVjqKVusUZ1Q=="],
 
     "@babel/runtime": ["@babel/runtime@7.28.6", "", {}, "sha512-05WQkdpL9COIMz4LjTxGpPNCdlpyimKppYNoJ5Di5EUObifl8t4tuLuUBBZEpoLYOmfvIWrsp9fCl0HoPRVTdA=="],
-
-    "@btc-tui/core": ["@btc-tui/core@workspace:packages/core"],
-
-    "@btc-tui/server": ["@btc-tui/server@workspace:apps/server"],
-
-    "@btc-tui/ui": ["@btc-tui/ui@workspace:packages/ui"],
-
-    "@btc-tui/web": ["@btc-tui/web@workspace:apps/web"],
 
     "@esbuild/aix-ppc64": ["@esbuild/aix-ppc64@0.27.4", "", { "os": "aix", "cpu": "ppc64" }, "sha512-cQPwL2mp2nSmHHJlCyoXgHGhbEPMrEEU5xhkcy3Hs/O7nGZqEpZ2sUtLaL9MORLtDfRvVl2/3PAuEkYZH0Ty8Q=="],
 

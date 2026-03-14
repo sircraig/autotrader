@@ -1,4 +1,4 @@
-import { tradingConfig } from '@btc-tui/core/config/trading';
+import { tradingConfig } from '@autotrader/core/config/trading';
 import type {
   AggTrade,
   AppBootstrapState,
@@ -7,7 +7,7 @@ import type {
   OrderBook,
   SystemStatusPayload,
   Timeframe
-} from '@btc-tui/core/models';
+} from '@autotrader/core/models';
 
 const MAX_CANDLES_PER_TIMEFRAME = Math.max(
   tradingConfig.indicators.maxCandles,

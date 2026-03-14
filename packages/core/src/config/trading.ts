@@ -17,7 +17,7 @@ export const tradingConfig = {
     largeTradeThresholdBtc: 0.5
   },
   pointSignals: {
-    // These values are the real runtime thresholds from btc_tui/config.py.
+    // These values are the real runtime thresholds from autotrader/config.py.
     openThreshold: 4,
     closeThreshold: 2,
     minPnlTotal1h: 1200,
@@ -53,4 +53,3 @@ export const tradingConfig = {
 } as const;
 
 export type TradingConfig = typeof tradingConfig;
-

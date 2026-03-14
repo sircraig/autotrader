@@ -4,7 +4,7 @@ import {
   buildChartSurfaceState,
   type ChartBandPoint,
   type ChartSeriesPoint
-} from '@btc-tui/core';
+} from '@autotrader/core';
 import { useShallow } from 'zustand/react/shallow';
 
 import { WidgetBadge, WidgetFrame } from '../widgets';

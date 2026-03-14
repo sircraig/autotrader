@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 
-import { tradingConfig } from '@btc-tui/core/config/trading';
+import { tradingConfig } from '@autotrader/core/config/trading';
 
 import {
   BinanceIngestService,

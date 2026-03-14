@@ -16,9 +16,9 @@
     "exactOptionalPropertyTypes": true,
     "baseUrl": ".",
     "paths": {
-      "@btc-tui/core": ["packages/core/src/index.ts"],
-      "@btc-tui/core/*": ["packages/core/src/*"],
-      "@btc-tui/ui/*": ["packages/ui/src/*"]
+      "@autotrader/core": ["packages/core/src/index.ts"],
+      "@autotrader/core/*": ["packages/core/src/*"],
+      "@autotrader/ui/*": ["packages/ui/src/*"]
     }
   }
 }

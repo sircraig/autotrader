@@ -3,8 +3,8 @@ import { mkdtemp, readFile, rm } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-import type { Candle, CvdStats, DeltaStats, RunningTotals } from '@btc-tui/core/models';
-import { persistedLogEventSchema } from '@btc-tui/core/validation/logs';
+import type { Candle, CvdStats, DeltaStats, RunningTotals } from '@autotrader/core/models';
+import { persistedLogEventSchema } from '@autotrader/core/validation/logs';
 
 import {
   createCandleCloseLogEvent,
@@ -70,7 +70,7 @@ const candle: Candle = {
 };
 
 test('PersistedLogWriter routes validated events into the expected JSONL files', async () => {
-  const logDir = await mkdtemp(path.join(tmpdir(), 'btc-tui2-logs-'));
+  const logDir = await mkdtemp(path.join(tmpdir(), 'autotrader-logs-'));
 
   try {
     const writer = new PersistedLogWriter({ logDir });

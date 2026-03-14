@@ -26,7 +26,7 @@ export function buildHealthStatusBody(
 ): HealthStatusBody {
   return {
     ok: snapshot.systemStatus.status !== 'stopped',
-    service: 'btc-tui2-server',
+    service: 'autotrader-server',
     symbol,
     phase: 4,
     status: snapshot.systemStatus,
@@ -44,7 +44,7 @@ export function buildServerStatusBody(
   symbol: string
 ): ServerStatusBody {
   return {
-    service: 'btc-tui2-server',
+    service: 'autotrader-server',
     symbol,
     market: snapshot
   };

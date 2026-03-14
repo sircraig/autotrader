@@ -33,8 +33,8 @@ ensure_rule() {
 }
 
 for source_cidr in "${LAN_CIDR}" "${DOCKER_CIDR}"; do
-  ensure_rule "${source_cidr}" "${WEB_PORT}" tcp "btc-tui2 frontend"
-  ensure_rule "${source_cidr}" "${SERVER_PORT}" tcp "btc-tui2 backend"
+  ensure_rule "${source_cidr}" "${WEB_PORT}" tcp "autotrader frontend"
+  ensure_rule "${source_cidr}" "${SERVER_PORT}" tcp "autotrader backend"
 done
 
 sudo ufw reload

@@ -1,4 +1,4 @@
-import { tradingConfig } from '@btc-tui/core/config/trading';
+import { tradingConfig } from '@autotrader/core/config/trading';
 
 import { BinanceIngestService } from './ingest/binance';
 import { PersistedLogWriter } from './logging/persisted-log-writer';
@@ -55,7 +55,7 @@ if (ingestEnabled) {
     console.error('failed to start ingest service', error);
   });
 } else {
-  console.warn('btc-tui2 ingest disabled via INGEST_ENABLED=0');
+  console.warn('autotrader ingest disabled via INGEST_ENABLED=0');
 }
 
 function jsonResponse(request: Request, body: unknown, init: ResponseInit = {}): Response {
@@ -129,7 +129,7 @@ const server = Bun.serve({
     return jsonResponse(
       request,
       {
-        message: 'btc-tui2 server',
+        message: 'autotrader server',
         health: '/health',
         status: '/status',
         bootstrap: '/bootstrap',
@@ -141,4 +141,4 @@ const server = Bun.serve({
   }
 });
 
-console.log(`btc-tui2 server listening on http://localhost:${server.port}`);
+console.log(`autotrader server listening on http://localhost:${server.port}`);

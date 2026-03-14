@@ -10,7 +10,7 @@ import type {
   PointSignalIndicatorSnapshot,
   RunningTotals,
   Timeframe
-} from '@btc-tui/core';
+} from '@autotrader/core';
 import type {
   CandleCloseLogEvent,
   PersistedCandleIndicators,
@@ -26,7 +26,7 @@ import type {
   PointTradeOpenLogEvent,
   TradeCloseLogEvent,
   TradeOpenLogEvent
-} from '@btc-tui/core/models';
+} from '@autotrader/core/models';
 
 function toIsoTimestamp(timestamp: number): string {
   return new Date(timestamp).toISOString();

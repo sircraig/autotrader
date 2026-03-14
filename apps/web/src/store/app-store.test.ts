@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test';
 
-import type { AppEvent, AppServerMessage } from '@btc-tui/core/models';
+import type { AppEvent, AppServerMessage } from '@autotrader/core/models';
 
 import {
   applyAppEvent,

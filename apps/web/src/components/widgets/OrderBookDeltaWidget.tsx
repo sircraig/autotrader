@@ -1,7 +1,7 @@
 import { useDeferredValue } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 
-import type { OrderBookSignalPayload } from '@btc-tui/core/models';
+import type { OrderBookSignalPayload } from '@autotrader/core/models';
 
 import { useAppStore, type DashboardStoreState } from '../../store/app-store';
 import { formatSigned, getTone } from './format';

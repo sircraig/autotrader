@@ -6,7 +6,7 @@ import type {
   AppEventMessage,
   AppServerMessage,
   Candle
-} from '@btc-tui/core/models';
+} from '@autotrader/core/models';
 
 declare global {
   interface Window {

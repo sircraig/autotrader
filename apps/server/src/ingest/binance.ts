@@ -1,4 +1,4 @@
-import { tradingConfig } from '@btc-tui/core/config/trading';
+import { tradingConfig } from '@autotrader/core/config/trading';
 import type {
   AggTrade,
   AppEvent,
@@ -10,7 +10,7 @@ import type {
   OrderBook,
   OrderBookEventPayload,
   AggTradeEventPayload
-} from '@btc-tui/core/models';
+} from '@autotrader/core/models';
 
 import { MarketState } from '../state/market-state';
 

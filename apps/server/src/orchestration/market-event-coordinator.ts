@@ -6,8 +6,8 @@ import {
   type DeltaSeriesPoint,
   type OrderBookDeltaSignalEvent,
   type PointSignalEvent
-} from '@btc-tui/core';
-import { tradingConfig } from '@btc-tui/core/config/trading';
+} from '@autotrader/core';
+import { tradingConfig } from '@autotrader/core/config/trading';
 import type {
   AppEvent,
   AppEventEnvelope,
@@ -20,7 +20,7 @@ import type {
   PersistedLogEvent,
   PointSignalPayload,
   Timeframe
-} from '@btc-tui/core/models';
+} from '@autotrader/core/models';
 
 import {
   createCandleCloseLogEvent,

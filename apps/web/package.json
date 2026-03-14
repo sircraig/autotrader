@@ -1,5 +1,5 @@
 {
-  "name": "@btc-tui/web",
+  "name": "@autotrader/web",
   "private": true,
   "type": "module",
   "scripts": {
@@ -9,7 +9,7 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@btc-tui/core": "workspace:*",
-    "@btc-tui/ui": "workspace:*"
+    "@autotrader/core": "workspace:*",
+    "@autotrader/ui": "workspace:*"
   }
 }
