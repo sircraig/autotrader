@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@source "../../../apps/web/index.html";
+@source "../../../apps/web/src/**/*.{ts,tsx}";
+
+@theme {
+  --font-matrix:
+    "Cascadia Code", "IBM Plex Mono", "JetBrains Mono", "Fira Code", monospace;
+
+  --color-matrix-bg: #020403;
+  --color-matrix-grid: rgba(90, 255, 140, 0.08);
+  --color-matrix-text: #d8ffe1;
+  --color-matrix-muted: #7fb08d;
+  --color-matrix-accent: #5bff8c;
+  --color-matrix-accent-strong: #b3ffca;
+  --color-matrix-border: rgba(102, 255, 148, 0.45);
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    background: var(--color-matrix-bg);
+  }
+
+  body {
+    min-height: 100vh;
+    margin: 0;
+    font-family: var(--font-matrix);
+    color: var(--color-matrix-text);
+    background:
+      linear-gradient(rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0.06)),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 3px,
+        rgba(91, 255, 140, 0.03) 3px,
+        rgba(91, 255, 140, 0.03) 4px
+      ),
+      linear-gradient(90deg, transparent 0, transparent 47px, var(--color-matrix-grid) 48px),
+      linear-gradient(var(--color-matrix-grid) 1px, transparent 1px),
+      radial-gradient(circle at top, rgba(62, 255, 124, 0.12), transparent 30%),
+      linear-gradient(180deg, #061108 0%, var(--color-matrix-bg) 100%);
+    background-size: auto, auto, 48px 48px, 48px 48px, auto, auto;
+  }
+
+  #root {
+    min-height: 100vh;
+  }
+}
+
+@utility matrix-panel {
+  position: relative;
+  min-height: 150px;
+  border: 1px solid var(--color-matrix-border);
+  border-radius: 0;
+  padding: 18px;
+  background:
+    linear-gradient(180deg, rgba(4, 16, 7, 0.96), rgba(2, 8, 3, 0.98));
+  box-shadow:
+    0 0 0 1px rgba(91, 255, 140, 0.08) inset,
+    0 0 22px rgba(16, 112, 41, 0.14);
+}
+
+@utility matrix-panel-title {
+  margin: 0 0 8px;
+  font-size: 0.82rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-matrix-accent-strong);
+}
+
+@utility matrix-panel-value {
+  margin: 0;
+  font-size: 1rem;
+  line-height: 1.6;
+  text-transform: uppercase;
+  color: var(--color-matrix-text);
+}
+
+@utility matrix-panel-meta {
+  margin: 14px 0 0;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-matrix-muted);
+}
+
+@layer components {
+  .matrix-panel::after {
+    content: "";
+    position: absolute;
+    inset: 8px;
+    border: 1px solid rgba(102, 255, 148, 0.08);
+    pointer-events: none;
+  }
+}

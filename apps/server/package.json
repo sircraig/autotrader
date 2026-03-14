@@ -1,0 +1,15 @@
+{
+  "name": "@btc-tui/server",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch src/index.ts",
+    "build": "bun build src/index.ts --outdir dist",
+    "start": "bun run dist/index.js",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@btc-tui/core": "workspace:*"
+  }
+}
+

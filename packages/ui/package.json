@@ -1,0 +1,9 @@
+{
+  "name": "@btc-tui/ui",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./styles.css": "./src/styles.css"
+  }
+}
+

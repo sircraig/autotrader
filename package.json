@@ -1,0 +1,51 @@
+{
+  "name": "btc-tui2",
+  "private": true,
+  "packageManager": "bun@1.3.8",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "setup": "./scripts/setup-check.sh",
+    "start:app": "./scripts/start-app.sh",
+    "dev:web": "bun run --cwd apps/web dev",
+    "dev:server": "bun run --cwd apps/server dev",
+    "build:web": "bun run --cwd apps/web build",
+    "build:server": "bun run --cwd apps/server build",
+    "typecheck": "bun run typecheck:core && bun run typecheck:server && bun run typecheck:web",
+    "typecheck:core": "bun run --cwd packages/core typecheck",
+    "typecheck:server": "bun run --cwd apps/server typecheck",
+    "typecheck:web": "bun run --cwd apps/web typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "test": "bun test packages/core/src apps/server/src apps/web/src"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "zod": "^3.24.2",
+    "zustand": "^5.0.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2",
+    "@tailwindcss/vite": "^4.1.12",
+    "@testing-library/jest-dom": "^6.8.0",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/bun": "^1.2.20",
+    "@types/react": "^19.1.12",
+    "@types/react-dom": "^19.1.9",
+    "@vitejs/plugin-react-swc": "^3.11.0",
+    "@eslint/js": "^9.34.0",
+    "eslint": "^9.34.0",
+    "prettier": "^3.6.2",
+    "tailwindcss": "^4.1.12",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.41.0",
+    "vite": "^7.1.3",
+    "vitest": "^3.2.4"
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "types": ["bun"],
+    "outDir": "dist"
+  },
+  "include": ["src/**/*.ts"],
+  "references": [{ "path": "../../packages/core" }]
+}
+
