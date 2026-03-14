@@ -58,7 +58,7 @@ test('coordinator emits delta analytics and trade signals after order-book updat
     lastUpdateId: 1
   };
 
-  const batch = coordinator.process(
+  const firstBatch = coordinator.process(
     createRawEvent(nextSequence, {
       type: 'market.order_book',
       emittedAt: '2026-03-14T10:00:00.000Z',
@@ -70,13 +70,33 @@ test('coordinator emits delta analytics and trade signals after order-book updat
     })
   );
 
-  expect(batch.events.map((event) => event.type)).toEqual([
+  expect(firstBatch.events.map((event) => event.type)).toEqual([
+    'market.order_book',
+    'analytics.delta'
+  ]);
+  expect(firstBatch.events.map((event) => event.sequence)).toEqual([1, 2]);
+  expect(firstBatch.logEvents).toEqual([]);
+
+  now = 2_000;
+  const confirmedBatch = coordinator.process(
+    createRawEvent(nextSequence, {
+      type: 'market.order_book',
+      emittedAt: '2026-03-14T10:00:01.000Z',
+      source: 'binance',
+      symbol: 'BTCUSDT',
+      payload: {
+        orderBook
+      }
+    })
+  );
+
+  expect(confirmedBatch.events.map((event) => event.type)).toEqual([
     'market.order_book',
     'analytics.delta',
     'signal.order_book_delta'
   ]);
-  expect(batch.events.map((event) => event.sequence)).toEqual([1, 2, 3]);
-  expect(batch.logEvents.map((event) => event.event_type)).toEqual(['TRADE_OPEN']);
+  expect(confirmedBatch.events.map((event) => event.sequence)).toEqual([3, 4, 5]);
+  expect(confirmedBatch.logEvents.map((event) => event.event_type)).toEqual(['TRADE_OPEN']);
 });
 
 test('coordinator emits rolling cvd analytics after aggregate trades', () => {
@@ -181,6 +201,31 @@ test('coordinator sequences 5m candle analytics before point-signal events and l
     createRawEvent(nextSequence, {
       type: 'market.order_book',
       emittedAt: '2026-03-14T10:00:00.000Z',
+      source: 'binance',
+      symbol: 'BTCUSDT',
+      payload: {
+        orderBook: {
+          bids: [
+            { price: 64_000, quantity: 15 },
+            { price: 63_999, quantity: 10 },
+            { price: 63_998, quantity: 10 }
+          ],
+          asks: [
+            { price: 64_001, quantity: 1 },
+            { price: 64_002, quantity: 1 },
+            { price: 64_003, quantity: 1 }
+          ],
+          lastUpdateId: 10
+        }
+      }
+    })
+  );
+
+  now = 2_000;
+  coordinator.process(
+    createRawEvent(nextSequence, {
+      type: 'market.order_book',
+      emittedAt: '2026-03-14T10:00:01.000Z',
       source: 'binance',
       symbol: 'BTCUSDT',
       payload: {

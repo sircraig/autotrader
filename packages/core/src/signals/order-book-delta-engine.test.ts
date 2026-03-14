@@ -58,6 +58,19 @@ const buyCloseBook = createOrderBook({
   ]
 });
 
+const buyDepthReversalCloseBook = createOrderBook({
+  bidLevels: [
+    [103, 4],
+    [102.5, 1],
+    [102, 1]
+  ],
+  askLevels: [
+    [104, 1],
+    [104.5, 5],
+    [105, 6]
+  ]
+});
+
 const sellCloseBook = createOrderBook({
   bidLevels: [
     [99, 11],
@@ -73,6 +86,7 @@ const sellCloseBook = createOrderBook({
 
 test('calculateOrderBookConditions matches the source ratio and close checks', () => {
   const conditions = calculateOrderBookConditions(buyOpenBook);
+  const reversalConditions = calculateOrderBookConditions(buyDepthReversalCloseBook);
 
   expect(conditions.bidQty3).toBe(6.5);
   expect(conditions.askQty3).toBe(1);
@@ -82,10 +96,37 @@ test('calculateOrderBookConditions matches the source ratio and close checks', (
   expect(conditions.buyOpenMet).toBe(true);
   expect(conditions.sellOpenMet).toBe(false);
   expect(conditions.buyCloseMet).toBe(false);
+  expect(reversalConditions.buyCloseRatio).toBeCloseTo(1 / 6);
+  expect(reversalConditions.askBidRatio).toBe(2);
+  expect(reversalConditions.buyCloseMet).toBe(true);
+});
+
+test('engine requires confirmation across consecutive updates before opening by default', () => {
+  const engine = new OrderBookDeltaEngine();
+
+  const opened = engine.updateOrderBook(buyOpenBook, 0);
+  expect(opened.signalEvents).toEqual([]);
+  expect(opened.snapshot.activeBuy).toBeNull();
+
+  const confirmed = engine.updateOrderBook(buyOpenBook, 1_000);
+  expect(confirmed.signalEvents).toEqual([
+    {
+      signalType: 'BUY',
+      action: 'open',
+      conditions: confirmed.snapshot.lastConditions!,
+      entryPrice: 101,
+      entryTime: 1_000
+    }
+  ]);
+  expect(confirmed.snapshot.activeBuy).toEqual({
+    signalType: 'BUY',
+    entryPrice: 101,
+    entryTime: 1_000
+  });
 });
 
 test('engine opens a BUY, holds it without duplicate events, then closes it into rolling totals', () => {
-  const engine = new OrderBookDeltaEngine();
+  const engine = new OrderBookDeltaEngine({ openPersistenceUpdates: 1, cooldownMs: 0 });
 
   const opened = engine.updateOrderBook(buyOpenBook, 0);
   expect(opened.signalEvents).toEqual([
@@ -166,7 +207,7 @@ test('engine opens a BUY, holds it without duplicate events, then closes it into
 });
 
 test('engine closes BUY before opening SELL on the same update', () => {
-  const engine = new OrderBookDeltaEngine();
+  const engine = new OrderBookDeltaEngine({ openPersistenceUpdates: 1, cooldownMs: 0 });
 
   engine.updateOrderBook(buyOpenBook, 0);
   const update = engine.updateOrderBook(buyCloseAndSellOpenBook, 15_000);
@@ -190,7 +231,7 @@ test('engine closes BUY before opening SELL on the same update', () => {
 });
 
 test('engine closes a SELL with negative delta contribution and positive sell pnl', () => {
-  const engine = new OrderBookDeltaEngine();
+  const engine = new OrderBookDeltaEngine({ openPersistenceUpdates: 1, cooldownMs: 0 });
 
   engine.updateOrderBook(buyOpenBook, 0);
   engine.updateOrderBook(buyCloseAndSellOpenBook, 15_000);
@@ -231,7 +272,7 @@ test('engine closes a SELL with negative delta contribution and positive sell pn
 });
 
 test('engine prunes rolling windows by close timestamp while keeping longer windows intact', () => {
-  const engine = new OrderBookDeltaEngine();
+  const engine = new OrderBookDeltaEngine({ openPersistenceUpdates: 1, cooldownMs: 0 });
 
   engine.updateOrderBook(buyOpenBook, 0);
   engine.updateOrderBook(buyCloseAndSellOpenBook, 10_000);
@@ -293,6 +334,45 @@ test('engine prunes rolling windows by close timestamp while keeping longer wind
     totalDuration: 3610,
     durationDelta: -3570,
     durationDeltaPct: 98
+  });
+});
+
+test('engine closes a BUY on full-book reversal before the first ask alone reaches the close threshold', () => {
+  const engine = new OrderBookDeltaEngine({ openPersistenceUpdates: 1, cooldownMs: 0 });
+
+  engine.updateOrderBook(buyOpenBook, 0);
+  const update = engine.updateOrderBook(buyDepthReversalCloseBook, 10_000);
+
+  expect(update.signalEvents).toHaveLength(1);
+  expect(update.signalEvents[0]?.action).toBe('close');
+  expect(update.snapshot.activeBuy).toBeNull();
+  expect(update.snapshot.currentDelta).toBe(2);
+});
+
+test('engine enforces a same-side cooldown before reopening after a close', () => {
+  const engine = new OrderBookDeltaEngine({ openPersistenceUpdates: 1, cooldownMs: 5_000 });
+
+  engine.updateOrderBook(buyOpenBook, 0);
+  engine.updateOrderBook(buyCloseBook, 10_000);
+
+  const coolingDown = engine.updateOrderBook(buyOpenBook, 12_000);
+  expect(coolingDown.signalEvents).toEqual([]);
+  expect(coolingDown.snapshot.activeBuy).toBeNull();
+
+  const reopened = engine.updateOrderBook(buyOpenBook, 15_001);
+  expect(reopened.signalEvents).toEqual([
+    {
+      signalType: 'BUY',
+      action: 'open',
+      conditions: reopened.snapshot.lastConditions!,
+      entryPrice: 101,
+      entryTime: 15_001
+    }
+  ]);
+  expect(reopened.snapshot.activeBuy).toEqual({
+    signalType: 'BUY',
+    entryPrice: 101,
+    entryTime: 15_001
   });
 });
 

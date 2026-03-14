@@ -11,7 +11,9 @@ export const tradingConfig = {
   orderBookDelta: {
     imbalanceRatio: 5.0,
     closeRatio: 2.0,
-    minQuantityBtc: 0.5
+    minQuantityBtc: 0.5,
+    openPersistenceUpdates: 2,
+    cooldownMs: 5_000
   },
   tradeFlow: {
     largeTradeThresholdBtc: 0.5
@@ -53,4 +55,3 @@ export const tradingConfig = {
 } as const;
 
 export type TradingConfig = typeof tradingConfig;
-

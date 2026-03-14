@@ -66,6 +66,8 @@ export interface OrderBookDeltaEngineOptions {
   imbalanceRatio?: number;
   closeRatio?: number;
   minQuantityBtc?: number;
+  openPersistenceUpdates?: number;
+  cooldownMs?: number;
   recentEventLimit?: number;
 }
 
@@ -95,6 +97,10 @@ function cloneActiveTrade(trade: ActiveOrderBookTrade): ActiveOrderBookTrade {
 
 function cloneClosedTrade(trade: ClosedOrderBookTrade): ClosedOrderBookTrade {
   return { ...trade };
+}
+
+function updateConsecutiveCount(current: number, conditionMet: boolean): number {
+  return conditionMet ? current + 1 : 0;
 }
 
 function createRollingTotalsState(windowSeconds: number, now: RollingWindowClock): RollingTotalsState {
@@ -182,12 +188,12 @@ export function calculateOrderBookConditions(
   const buyQtyMet = firstAskQty >= minQuantityBtc;
   const buyOpenMet = buyRatioMet && buyQtyMet;
   const buyCloseRatio = bidQty3 > 0 ? firstAskQty / bidQty3 : 0;
-  const buyCloseMet = firstAskQty >= closeRatio * bidQty3;
+  const buyCloseMet = firstAskQty >= closeRatio * bidQty3 || askBidRatio >= closeRatio;
   const sellRatioMet = askQty3 >= imbalanceRatio * bidQty3;
   const sellQtyMet = firstBidQty >= minQuantityBtc;
   const sellOpenMet = sellRatioMet && sellQtyMet;
   const sellCloseRatio = askQty3 > 0 ? firstBidQty / askQty3 : 0;
-  const sellCloseMet = firstBidQty >= closeRatio * askQty3;
+  const sellCloseMet = firstBidQty >= closeRatio * askQty3 || bidAskRatio >= closeRatio;
 
   return {
     bidQty3,
@@ -217,11 +223,17 @@ export class OrderBookDeltaEngine {
   private readonly imbalanceRatio: number;
   private readonly closeRatio: number;
   private readonly minQuantityBtc: number;
+  private readonly openPersistenceUpdates: number;
+  private readonly cooldownMs: number;
   private readonly recentEventLimit: number;
   private latestOrderBook: OrderBook | null = null;
   private lastConditions: OrderBookConditions | null = null;
   private currentBuy: ActiveOrderBookTrade | null = null;
   private currentSell: ActiveOrderBookTrade | null = null;
+  private buyOpenStreak = 0;
+  private sellOpenStreak = 0;
+  private buyCooldownUntil = 0;
+  private sellCooldownUntil = 0;
   private readonly rolling30m: RollingTotalsState;
   private readonly rolling1h: RollingTotalsState;
   private readonly rolling4h: RollingTotalsState;
@@ -234,6 +246,9 @@ export class OrderBookDeltaEngine {
     this.closeRatio = options.closeRatio ?? tradingConfig.orderBookDelta.closeRatio;
     this.minQuantityBtc =
       options.minQuantityBtc ?? tradingConfig.orderBookDelta.minQuantityBtc;
+    this.openPersistenceUpdates =
+      options.openPersistenceUpdates ?? tradingConfig.orderBookDelta.openPersistenceUpdates;
+    this.cooldownMs = options.cooldownMs ?? tradingConfig.orderBookDelta.cooldownMs;
     this.recentEventLimit = options.recentEventLimit ?? 10;
     this.rolling30m = createRollingTotalsState(tradingConfig.windows.rolling30mSeconds, this.now);
     this.rolling1h = createRollingTotalsState(tradingConfig.windows.rolling1hSeconds, this.now);
@@ -260,12 +275,18 @@ export class OrderBookDeltaEngine {
     this.lastConditions = cloneConditions(conditions);
 
     if (this.currentBuy === null) {
-      if (conditions.buyOpenMet) {
+      this.buyOpenStreak = updateConsecutiveCount(
+        this.buyOpenStreak,
+        conditions.buyOpenMet && timestamp >= this.buyCooldownUntil
+      );
+
+      if (this.buyOpenStreak >= this.openPersistenceUpdates) {
         this.currentBuy = {
           signalType: 'BUY',
           entryPrice: conditions.firstAskPrice,
           entryTime: timestamp
         };
+        this.buyOpenStreak = 0;
 
         signalEvents.push({
           signalType: 'BUY',
@@ -281,6 +302,8 @@ export class OrderBookDeltaEngine {
       this.recordClosedTrade(this.rolling1h, closedTrade, timestamp, 1);
       this.recordClosedTrade(this.rolling4h, closedTrade, timestamp, 1);
       this.pushRecentEvent(closedTrade);
+      this.buyCooldownUntil = timestamp + this.cooldownMs;
+      this.buyOpenStreak = 0;
 
       signalEvents.push({
         signalType: 'BUY',
@@ -296,15 +319,23 @@ export class OrderBookDeltaEngine {
       });
 
       this.currentBuy = null;
+    } else {
+      this.buyOpenStreak = 0;
     }
 
     if (this.currentSell === null) {
-      if (conditions.sellOpenMet) {
+      this.sellOpenStreak = updateConsecutiveCount(
+        this.sellOpenStreak,
+        conditions.sellOpenMet && timestamp >= this.sellCooldownUntil
+      );
+
+      if (this.sellOpenStreak >= this.openPersistenceUpdates) {
         this.currentSell = {
           signalType: 'SELL',
           entryPrice: conditions.firstBidPrice,
           entryTime: timestamp
         };
+        this.sellOpenStreak = 0;
 
         signalEvents.push({
           signalType: 'SELL',
@@ -320,6 +351,8 @@ export class OrderBookDeltaEngine {
       this.recordClosedTrade(this.rolling1h, closedTrade, timestamp, -1);
       this.recordClosedTrade(this.rolling4h, closedTrade, timestamp, -1);
       this.pushRecentEvent(closedTrade);
+      this.sellCooldownUntil = timestamp + this.cooldownMs;
+      this.sellOpenStreak = 0;
 
       signalEvents.push({
         signalType: 'SELL',
@@ -335,6 +368,8 @@ export class OrderBookDeltaEngine {
       });
 
       this.currentSell = null;
+    } else {
+      this.sellOpenStreak = 0;
     }
 
     return {
