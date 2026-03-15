@@ -37,7 +37,7 @@ function createRawEvent<TEvent extends AppEvent>(
 }
 
 test('coordinator emits delta analytics and trade signals after order-book updates', () => {
-  let now = 1_000;
+  const now = 1_000;
   const nextSequence = createSequenceGenerator();
   const coordinator = new MarketEventCoordinator({
     nextSequence,
@@ -86,7 +86,7 @@ test('coordinator emits delta analytics and trade signals after order-book updat
 });
 
 test('coordinator emits rolling cvd analytics after aggregate trades', () => {
-  let now = 2_000;
+  const now = 2_000;
   const nextSequence = createSequenceGenerator();
   const coordinator = new MarketEventCoordinator({
     nextSequence,
@@ -126,7 +126,7 @@ test('coordinator emits rolling cvd analytics after aggregate trades', () => {
 });
 
 test('coordinator emits delta and cvd snapshots for closed 1m candles and writes a candle log', () => {
-  let now = 3_000;
+  const now = 3_000;
   const nextSequence = createSequenceGenerator();
   const coordinator = new MarketEventCoordinator({
     nextSequence,
