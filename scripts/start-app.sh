@@ -10,6 +10,31 @@ FRONTEND_DEBUG="${FRONTEND_DEBUG:-false}"
 SERVER_PID=""
 WEB_PID=""
 
+supports_wait_n() {
+  (( BASH_VERSINFO[0] > 4 || (BASH_VERSINFO[0] == 4 && BASH_VERSINFO[1] >= 3) ))
+}
+
+wait_for_first_exit() {
+  if supports_wait_n; then
+    wait -n "$SERVER_PID" "$WEB_PID"
+    return $?
+  fi
+
+  while true; do
+    if ! kill -0 "$SERVER_PID" >/dev/null 2>&1; then
+      wait "$SERVER_PID"
+      return $?
+    fi
+
+    if ! kill -0 "$WEB_PID" >/dev/null 2>&1; then
+      wait "$WEB_PID"
+      return $?
+    fi
+
+    sleep 1
+  done
+}
+
 cleanup() {
   local exit_code=$?
 
@@ -55,4 +80,4 @@ echo "Application started."
 echo "Web:    http://localhost:${WEB_PORT} (listening on ${WEB_HOST})"
 echo "Server: http://localhost:${SERVER_PORT}"
 
-wait -n "$SERVER_PID" "$WEB_PID"
+wait_for_first_exit
